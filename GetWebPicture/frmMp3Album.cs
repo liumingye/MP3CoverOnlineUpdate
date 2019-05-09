@@ -31,7 +31,8 @@ namespace Mp3AlbumCoverUpdater
         private DataTable dtResult = null;
         private List<string> listError = new List<string>();
         private string strEngine = "";
-       
+        RegisteredWaitHandle registeredWaitHandle = null;
+
         private delegate void TempDelegate(Image image);
         private delegate void ChangeControlEnable(Button bt);
 
@@ -45,8 +46,8 @@ namespace Mp3AlbumCoverUpdater
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            btnStart.Text = "加载中..";            
-            btnStart.Enabled = false;
+            btnSearch.Text = "加载中..";            
+            btnSearch.Enabled = false;
         
             string strurlBaidu = "http://image.baidu.com/i?tn=baiduimage&ipn=r&ct=201326592&cl=2&lm=-1&st=-1&fm=result&fr=&sf=1&fmq=&pv=&ic=0&nc=1&z=&se=1&showtab=0&fb=0&width=&height=&face=0&istype=2&ie=utf-8&word=";
             string strurlQQ = "http://soso.music.qq.com/fcgi-bin/music_json.fcg?mid=1&catZhida=1&lossless=0&json=1&w=Key&num=30&t=8&p=1&utf8=1&searchid=216648286573551810&remoteplace=sizer.yqqlist.album&g_tk=5381&loginUin=0&hostUin=0&format=yqq&jsonpCallback=MusicJsonCallback&needNewCode=0";
@@ -133,7 +134,6 @@ namespace Mp3AlbumCoverUpdater
 
                 }
                 //AutoResetEvent mainAutoResetEvent = new AutoResetEvent(false);
-                RegisteredWaitHandle registeredWaitHandle = null;
                 registeredWaitHandle = ThreadPool.RegisterWaitForSingleObject(new AutoResetEvent(false), new WaitOrTimerCallback(delegate(object obj, bool timeout)
                 {
                     int workerThreads = 0;
@@ -146,7 +146,7 @@ namespace Mp3AlbumCoverUpdater
                       
                         //mainAutoResetEvent.Set();
                         registeredWaitHandle.Unregister(null);
-                        btnStart.Invoke(new ChangeControlEnable(ChangeButtonEnable), new object[] { btnStart });
+                        btnSearch.Invoke(new ChangeControlEnable(ChangeButtonEnable), new object[] { btnSearch });
 
                     }
                 }), null, 1000, false);
@@ -370,6 +370,12 @@ namespace Mp3AlbumCoverUpdater
             Mp3File.TagHandler.Picture = ptbNew.Image;
             Mp3File.Update();
             dgvList.SelectedRows[0].Cells[2].Value = ptbNew.Image;
+            string path = dgvList.SelectedRows[0].Cells[1].Value.ToString();
+            string pathbak = System.IO.Path.GetDirectoryName(path) + "\\" + System.IO.Path.GetFileNameWithoutExtension(path) + ".bak";
+            if (File.Exists(pathbak))
+            {
+                File.Delete(pathbak);
+            }
         }
 
         private void OpenFile_Click(object sender, EventArgs e)
@@ -386,6 +392,8 @@ namespace Mp3AlbumCoverUpdater
                     if (frm.ShowDialog() == DialogResult.OK)
                     {
                         dgvList.DataSource = dtResult;
+                        dgvList.Columns[0].Width = 300;
+                        dgvList.Columns[1].Visible = false;
                     }
                 }
                 catch (Exception)
@@ -408,29 +416,35 @@ namespace Mp3AlbumCoverUpdater
             DataColumn dc1 = new DataColumn("标题", typeof(string));
             DataColumn dc2 = new DataColumn("路径", typeof(string));
             DataColumn dc3 = new DataColumn("专辑封面", typeof(Image));
-           
+            
             dt.Columns.Add(dc1);
             dt.Columns.Add(dc2);
             dt.Columns.Add(dc3);
+
             DirectoryInfo di = new DirectoryInfo(strSelectPaht);
-            FileInfo[] files1 = di.GetFiles("*.mp3");
+            FileInfo[] files1 = di.GetFiles("*.*");
+
             string strTitel = "";
             try
             {
                 foreach (FileInfo fi in files1)
                 {
-                    DataRow dr = dt.NewRow();
-                    dr["标题"] = fi.Name;
-                    dr["路径"] = fi.FullName;
-                    strTitel = fi.Name;
-                    Mp3File = new Mp3File(fi.FullName);
-                    dr["专辑封面"] = Mp3File.TagHandler.Picture;
-                    dt.Rows.Add(dr.ItemArray);
+                    string ext = Path.GetExtension(fi.FullName);
+                    if (ext == ".mp3"|| ext == ".m4a"|| ext == ".flac"|| ext == ".ape")
+                    {
+                        DataRow dr = dt.NewRow();
+                        dr["标题"] = fi.Name;
+                        dr["路径"] = fi.FullName;
+                        strTitel = fi.Name;
+                        Mp3File = new Mp3File(fi.FullName);
+                        dr["专辑封面"] = Mp3File.TagHandler.Picture;
+                        dt.Rows.Add(dr.ItemArray);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(strTitel + " " + ex.Message);
+                //MessageBox.Show(strTitel + " " + ex.Message);
             }
             finally
             {
@@ -448,22 +462,58 @@ namespace Mp3AlbumCoverUpdater
                 Mp3File = new Mp3File(dgvList.SelectedRows[0].Cells["路径"].Value.ToString());
                
                 Mp3FileInfo mp3fileinfo = new Mp3FileInfo(dgvList.SelectedRows[0].Cells["路径"].Value.ToString());
-                txtKeyWord.Text = mp3fileinfo.Title.Trim() + " " + mp3fileinfo.Artist.Trim();
+          
+                string regexMultipleSpaces = @"\s+";
+                string regexPotentialSeparators = @"[_-]+";
+                string regexUnwantedChars = @"[^a-zA-Z0-9\s]+";
+
+                string searchText = mp3fileinfo.Title.Trim() + " " + mp3fileinfo.Artist.Trim();
+                searchText = Regex.Replace(searchText, regexPotentialSeparators, " "); // replace potential separators by spaces
+                searchText = Regex.Replace(searchText, regexUnwantedChars, ""); // remove unwanted chars
+                searchText = Regex.Replace(searchText, regexMultipleSpaces, " ");
+
+                txtKeyWord.Text = System.IO.Path.GetFileNameWithoutExtension(dgvList.SelectedRows[0].Cells["路径"].Value.ToString());
+
+                /*if (searchText.Trim() == "" || mp3fileinfo.Title.Trim() == "" || mp3fileinfo.Title.Trim() == "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUU")
+                {
+                    txtKeyWord.Text = System.IO.Path.GetFileNameWithoutExtension(dgvList.SelectedRows[0].Cells["路径"].Value.ToString());
+                }
+                else {
+                    txtKeyWord.Text = searchText;
+                }*/
+                
                 ptpOld.Image = mp3fileinfo.AlbumCover;
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
                 ptpOld.Image = null;
             }
 
-        }       
-       
-
+        }
+        bool IsSearching()
+        {
+            return !(btnSearch.Enabled);
+        }
+        void StopSearch()
+        {
+            //Logger.Log("stop remaining processes in : threadPool");
+            registeredWaitHandle.Unregister(null);
+            //SetSearching(false);
+        }
         private void btnAoutUpdate_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(".....待续");
+            if (IsSearching())
+            {
+                //Logger.Log("changed display filter while searching, stopping search...");
+                StopSearch();
+            }
+
+            /*string opposite = (ReadSetting("onlyMissing", "yes") == "yes") ? "no" : "yes";
+            AddUpdateAppSettings("onlyMissing", opposite);
+            UpdateBtnOnlyMissing();
+            InitFilesLoading();*/
         }
 
         private void ptbNew_DoubleClick(object sender, EventArgs e)
@@ -555,6 +605,15 @@ namespace Mp3AlbumCoverUpdater
             }
 
         }
-       
+
+        private void gitHubToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/liumingye/MP3CoverOnlineUpdate");
+        }
+
+        private void linkLabel1_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/liumingye/MP3CoverOnlineUpdate");
+        }
     }
 }

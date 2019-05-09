@@ -39,23 +39,25 @@
             // 
             // labTimer
             // 
-            this.labTimer.AutoSize = true;
             this.labTimer.BackColor = System.Drawing.Color.Black;
             this.labTimer.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labTimer.ForeColor = System.Drawing.SystemColors.Control;
-            this.labTimer.Location = new System.Drawing.Point(183, 181);
+            this.labTimer.Location = new System.Drawing.Point(0, 186);
+            this.labTimer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labTimer.Name = "labTimer";
-            this.labTimer.Size = new System.Drawing.Size(26, 13);
+            this.labTimer.Size = new System.Drawing.Size(400, 17);
             this.labTimer.TabIndex = 6;
             this.labTimer.Text = "0ms";
+            this.labTimer.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // labMessage
             // 
             this.labMessage.AutoSize = true;
             this.labMessage.Font = new System.Drawing.Font("Tahoma", 9.5F);
-            this.labMessage.Location = new System.Drawing.Point(16, 316);
+            this.labMessage.Location = new System.Drawing.Point(21, 395);
+            this.labMessage.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labMessage.Name = "labMessage";
-            this.labMessage.Size = new System.Drawing.Size(170, 16);
+            this.labMessage.Size = new System.Drawing.Size(184, 19);
             this.labMessage.TabIndex = 0;
             this.labMessage.Text = "正在处理数据，请稍后...";
             // 
@@ -66,19 +68,20 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Image = global::Mp3AlbumCoverUpdater.Properties.Resources.pictureBox1_Image;
             this.pictureBox1.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(396, 301);
+            this.pictureBox1.Size = new System.Drawing.Size(400, 300);
             this.pictureBox1.TabIndex = 2;
             this.pictureBox1.TabStop = false;
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(213, 318);
+            this.btnCancel.Location = new System.Drawing.Point(284, 398);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.Size = new System.Drawing.Size(100, 29);
             this.btnCancel.TabIndex = 3;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -86,19 +89,20 @@
             // 
             // frmWaitingBox
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(396, 301);
+            this.ClientSize = new System.Drawing.Size(396, 298);
             this.Controls.Add(this.labTimer);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.labMessage);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "frmWaitingBox";
             this.Text = "frmWaitingBox";
-            this.Shown += new System.EventHandler(this.frmWaitingBox_Shown);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmWaitingBox_FormClosing);
+            this.Shown += new System.EventHandler(this.frmWaitingBox_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

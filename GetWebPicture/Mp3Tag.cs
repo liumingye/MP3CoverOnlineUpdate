@@ -358,7 +358,7 @@ namespace Mp3AlbumCoverUpdater
             }
             catch (Exception ex)
             {
-                MessageBox.Show(path + ex.Message);
+                //MessageBox.Show(path + ex.Message);
             }
             finally
             {
@@ -423,10 +423,10 @@ namespace Mp3AlbumCoverUpdater
                         byteNewSize[1] = (byte)((newImageSize >> 16) & 0xff);
                         byteNewSize[0] = (byte)((newImageSize >> 24) & 0xff);
                         fs.Seek(-6, SeekOrigin.Current);
-                        if (!File.Exists(mp3FilePath + ".bak"))
+                        if (File.Exists(mp3FilePath + ".bak"))
                         {
-                            File.Copy(mp3FilePath, mp3FilePath + ".bak");
-                        }                     
+                            File.Delete(mp3FilePath + ".bak");
+                        }            
                         fs.Write(byteNewSize, 0, 4);
 
                         int Current = (int)fs.Position + 2;
@@ -456,10 +456,10 @@ namespace Mp3AlbumCoverUpdater
                     }
                     else
                     {
-                        if (!File.Exists(mp3FilePath + ".bak"))
+                        if (File.Exists(mp3FilePath + ".bak"))
                         {
-                            File.Copy(mp3FilePath, mp3FilePath + ".bak");
-                        }                     
+                            File.Delete(mp3FilePath + ".bak");
+                        }
                         byte[] byteID3V2_1Temp = new byte[sizeAll+10];
                         fs.Seek(0, SeekOrigin.Begin);
                         fs.Read(byteID3V2_1Temp, 0, sizeAll+10);
@@ -492,7 +492,6 @@ namespace Mp3AlbumCoverUpdater
             {
                 fs.Close();                
             }
-      
         }
         private byte[] RemoveBackZero(byte[] bytes)
         {
